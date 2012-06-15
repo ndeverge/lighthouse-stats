@@ -48,7 +48,7 @@ public class Application extends Controller {
 
 	private static String getPlayHouseToken() throws IOException {
 		InputStream in = Application.class
-				.getResourceAsStream("playhouse_api_token");
+				.getResourceAsStream("/playhouse_api_token");
 
 		if (in == null) {
 			Logger.error("Please add a \"playhouse_token\" file containing your PlayHouse API key.");
@@ -57,7 +57,11 @@ public class Application extends Controller {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-		return br.readLine();
+		String apiKey = br.readLine();
+
+		Logger.debug("Your API key is " + apiKey);
+
+		return apiKey;
 
 	}
 }

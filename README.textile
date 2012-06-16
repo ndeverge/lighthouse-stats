@@ -1,5 +1,9 @@
 h1. Lighthouse Stats
 
+h2. How it works
+
+It uses the REST LightHouse API: http://help.lighthouseapp.com/kb/api
+
 h2. Setup
 
 In order to have access to the LightHouse API, you have to create a read-only token on the PlayHouse website: http://help.lighthouseapp.com/kb/api/how-do-i-get-an-api-token

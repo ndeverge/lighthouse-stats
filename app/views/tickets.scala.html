@@ -1,0 +1,22 @@
+@(tickets: List[Ticket])
+
+@css = {
+
+}
+
+@javascript = {
+
+}
+
+@main("Welcome to LightHouse Stats !")(javascript)(css) {
+
+    @for(ticket <- tickets) {
+    <div class="row">
+        <div class="span8"><a href="@ticket.url" target="_blank">@ticket.title</a></div>
+        
+        <div class="span4"><span class="label label-info">@ticket.numberOfWatchers watchers</span></div>
+    </div>
+    <p></p>
+    }
+
+}

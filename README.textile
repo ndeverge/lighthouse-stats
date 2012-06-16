@@ -1,10 +1,12 @@
 h1. Lighthouse Stats
 
+h2. Setup
 
+In order to have access to the LightHouse API, you have to create a read-only token on the PlayHouse website: http://help.lighthouseapp.com/kb/api/how-do-i-get-an-api-token
+
+Then, create a file called "lighthouse_api_token" in the "conf" folder, with the API key as content.
 
 h2. License
-
-Copyright 2012 Ekito - http://www.ekito.fr/
  
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  

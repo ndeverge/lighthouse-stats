@@ -1,0 +1,16 @@
+@(account: String, projectId: String, totalPages: String)
+
+<div class="pagination">
+  <ul>
+    <li><a href="#">&#60;&#60;</a></li>
+    <li><a href="#">&#60;</a></li>
+    <li class="active">
+      <a href="#">1</a>
+    </li>
+    <li><a href="#">2</a></li>
+    <li class="disabled"><a href="#">...</a></li>
+    <li><a href="@controllers.routes.Application.popularTickets(account, projectId, totalPages)">@totalPages</a></li>
+    <li><a href="#">&#62;</a></li>
+    <li><a href="#">&#62;&#62;</a></li>
+  </ul>
+</div>

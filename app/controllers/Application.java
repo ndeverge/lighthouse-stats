@@ -99,7 +99,7 @@ public class Application extends Controller {
                                 }
                             });
 
-                            return ok(views.html.tickets.render(tickets, totalPages));
+                            return ok(views.html.tickets.render(tickets, account, projectId, totalPages));
                         }
                     }));
         } catch (IOException e) {

@@ -20,10 +20,10 @@ public class LightHouseApi {
 
     private static String playHouseAPIToken;
 
-    public static WSRequestHolder openTickets(final String account, final String projectId) throws IOException {
-        String url = String.format("http://%s.lighthouseapp.com/projects/%s/tickets.xml?q=state:open", account,
-                projectId);
-        return buildRequest(url);
+    public static WSRequestHolder openTickets(final String account, final String projectId, final String page)
+            throws IOException {
+        String url = String.format("http://%s.lighthouseapp.com/projects/%s/tickets.xml", account, projectId);
+        return buildRequest(url).setQueryParameter("q", "state:open").setQueryParameter("page", page);
     }
 
     public static WSRequestHolder allProjects(final String account) throws IOException {
@@ -32,6 +32,9 @@ public class LightHouseApi {
     }
 
     protected static WSRequestHolder buildRequest(final String url) throws IOException {
+
+        Logger.debug("Request: " + url);
+
         return WS.url(url).setHeader("X-LighthouseToken", getPlayHouseAPIToken())
                 .setHeader("Content-type", "application/xml");
     }

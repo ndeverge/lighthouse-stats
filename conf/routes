@@ -7,9 +7,9 @@ GET     /                                                   controllers.Applicat
 
 GET     /:account/projects                                  controllers.Application.allProjects(account:String)
 
-GET     /:account/projects/:projectId/tickets/open          controllers.Application.openTickets(account:String, projectId:String)
+GET     /:account/projects/:projectId/tickets/open          controllers.Application.openTickets(account:String, projectId:String, page:String ?= "1")
 
-GET     /:account/projects/:projectId/tickets/popular       controllers.Application.popularTickets(account:String, projectId:String)
+GET     /:account/projects/:projectId/tickets/popular       controllers.Application.popularTickets(account:String, projectId:String, page:String ?= "1")
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

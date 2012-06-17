@@ -25,34 +25,35 @@ import play.mvc.Result;
 public class Application extends Controller {
 
     public static Result index() {
-        return popularTickets("play", "82401");
+        return popularTickets("play", "82401", "1");
 
     }
 
-    public static Result openTickets(final String account, final String projectId) {
+    public static Result openTickets(final String account, final String projectId, final String page) {
 
         try {
-            return async(LightHouseApi.openTickets(account, projectId).get().map(new F.Function<WS.Response, Result>() {
-                @Override
-                public Result apply(final WS.Response response) {
+            return async(LightHouseApi.openTickets(account, projectId, page).get()
+                    .map(new F.Function<WS.Response, Result>() {
+                        @Override
+                        public Result apply(final WS.Response response) {
 
-                    if (response == null) {
-                        Logger.error("Null response");
-                        return internalServerError("Null response");
-                    }
+                            if (response == null) {
+                                Logger.error("Null response");
+                                return internalServerError("Null response");
+                            }
 
-                    Document doc = response.asXml();
+                            Document doc = response.asXml();
 
-                    Collection<Ticket> tickets = new ArrayList<Ticket>();
-                    for (Node node : XPath.selectNodes("//ticket", doc)) {
-                        Resource resource = Resource.instance(node);
-                        tickets.add((Ticket) resource);
+                            Collection<Ticket> tickets = new ArrayList<Ticket>();
+                            for (Node node : XPath.selectNodes("//ticket", doc)) {
+                                Resource resource = Resource.instance(node);
+                                tickets.add((Ticket) resource);
 
-                    }
+                            }
 
-                    return ok(tickets.toString());
-                }
-            }));
+                            return ok(tickets.toString());
+                        }
+                    }));
         } catch (IOException e) {
             Logger.error("", e);
         }
@@ -61,40 +62,46 @@ public class Application extends Controller {
 
     }
 
-    public static Result popularTickets(final String account, final String projectId) {
+    public static Result popularTickets(final String account, final String projectId, final String page) {
+
         try {
-            return async(LightHouseApi.openTickets(account, projectId).get().map(new F.Function<WS.Response, Result>() {
-                @Override
-                public Result apply(final WS.Response response) {
-
-                    if (response == null) {
-                        Logger.error("Null response");
-                        return internalServerError("Null response");
-                    }
-
-                    Document doc = response.asXml();
-
-                    List<Ticket> tickets = new ArrayList<Ticket>();
-                    for (Node node : XPath.selectNodes("//ticket", doc)) {
-                        Resource resource = Resource.instance(node);
-                        tickets.add((Ticket) resource);
-                    }
-
-                    Collections.sort(tickets, new Comparator<Ticket>() {
-
+            return async(LightHouseApi.openTickets(account, projectId, page).get()
+                    .map(new F.Function<WS.Response, Result>() {
                         @Override
-                        public int compare(final Ticket t1, final Ticket t2) {
-                            if (t1.numberOfWatchers >= t2.numberOfWatchers) {
-                                return -1;
-                            } else {
-                                return 1;
-                            }
-                        }
-                    });
+                        public Result apply(final WS.Response response) {
 
-                    return ok(views.html.tickets.render(tickets));
-                }
-            }));
+                            if (response == null) {
+                                Logger.error("Null response");
+                                return internalServerError("Null response");
+                            }
+
+                            Document doc = response.asXml();
+
+                            List<Ticket> tickets = new ArrayList<Ticket>();
+                            for (Node node : XPath.selectNodes("//ticket", doc)) {
+                                Resource resource = Resource.instance(node);
+                                tickets.add((Ticket) resource);
+                            }
+
+                            String totalPages = XPath.selectText("//total_pages", doc);
+
+                            Logger.debug("Current page = " + XPath.selectText("//current_page", doc));
+
+                            Collections.sort(tickets, new Comparator<Ticket>() {
+
+                                @Override
+                                public int compare(final Ticket t1, final Ticket t2) {
+                                    if (t1.numberOfWatchers >= t2.numberOfWatchers) {
+                                        return -1;
+                                    } else {
+                                        return 1;
+                                    }
+                                }
+                            });
+
+                            return ok(views.html.tickets.render(tickets, totalPages));
+                        }
+                    }));
         } catch (IOException e) {
             Logger.error("", e);
         }

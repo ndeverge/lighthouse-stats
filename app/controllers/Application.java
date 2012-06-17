@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 import play.Logger;
 import play.libs.F;
 import play.libs.WS;
+import play.libs.WS.WSRequestHolder;
 import play.libs.XPath;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -44,21 +45,42 @@ public class Application extends Controller {
 
                             Document doc = response.asXml();
 
-                            Collection<Ticket> tickets = new ArrayList<Ticket>();
-                            for (Node node : XPath.selectNodes("//ticket", doc)) {
-                                Resource resource = Resource.instance(node);
-                                tickets.add((Ticket) resource);
-
-                            }
+                            List<Ticket> tickets = getOpenTickets(doc);
 
                             return ok(tickets.toString());
                         }
                     }));
         } catch (IOException e) {
-            Logger.error("", e);
+            Logger.error("Error accessing to WebServices", e);
         }
 
         return internalServerError();
+
+    }
+
+    protected static List<Ticket> getOpenTickets(final Document doc) {
+
+        List<Ticket> tickets = new ArrayList<Ticket>();
+        for (Node node : XPath.selectNodes("//ticket", doc)) {
+            Resource resource = Resource.instance(node);
+            tickets.add((Ticket) resource);
+        }
+
+        return tickets;
+
+    }
+
+    protected F.Function<WSRequestHolder, List<Ticket>> getTickets(final WSRequestHolder request) {
+
+        return new F.Function<WSRequestHolder, List<Ticket>>() {
+
+            @Override
+            public List<Ticket> apply(final WSRequestHolder request) throws Throwable {
+
+                return null;
+            }
+
+        };
 
     }
 
@@ -77,15 +99,15 @@ public class Application extends Controller {
 
                             Document doc = response.asXml();
 
-                            List<Ticket> tickets = new ArrayList<Ticket>();
-                            for (Node node : XPath.selectNodes("//ticket", doc)) {
-                                Resource resource = Resource.instance(node);
-                                tickets.add((Ticket) resource);
-                            }
+                            List<Ticket> tickets = getOpenTickets(doc);
 
                             String totalPages = XPath.selectText("//total_pages", doc);
+                            String currentPage = XPath.selectText("//current_page", doc);
+                            Logger.debug("Current page = " + currentPage);
 
-                            Logger.debug("Current page = " + XPath.selectText("//current_page", doc));
+                            if (currentPage != totalPages) {
+                                // do something recursive
+                            }
 
                             Collections.sort(tickets, new Comparator<Ticket>() {
 
@@ -99,7 +121,8 @@ public class Application extends Controller {
                                 }
                             });
 
-                            return ok(views.html.tickets.render(tickets, account, projectId, totalPages));
+                            return ok(views.html.tickets.render(tickets, account, projectId,
+                                    Integer.valueOf(currentPage), Integer.valueOf(totalPages)));
                         }
                     }));
         } catch (IOException e) {

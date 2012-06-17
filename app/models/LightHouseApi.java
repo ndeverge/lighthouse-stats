@@ -23,7 +23,7 @@ public class LightHouseApi {
     public static WSRequestHolder openTickets(final String account, final String projectId, final String page)
             throws IOException {
         String url = String.format("http://%s.lighthouseapp.com/projects/%s/tickets.xml", account, projectId);
-        return buildRequest(url).setQueryParameter("q", "state:open").setQueryParameter("limit", "100")
+        return buildRequest(url).setQueryParameter("q", "state:open").setQueryParameter("limit", "30")
                 .setQueryParameter("page", page);
     }
 

@@ -1,16 +1,39 @@
-@(account: String, projectId: String, totalPages: String)
+@(account: String, projectId: String, currentPage: Integer, totalPages: Integer)
 
 <div class="pagination">
   <ul>
-    <li><a href="#">&#60;&#60;</a></li>
-    <li><a href="#">&#60;</a></li>
-    <li class="active">
-      <a href="#">1</a>
+    <li><a href="@controllers.routes.Application.popularTickets(account, projectId, "1")">&#60;&#60;</a></li>
+    
+    @if(currentPage == 1) {
+    <li class="disabled">
+        <a href="#">&#60;</a>
     </li>
-    <li><a href="#">2</a></li>
-    <li class="disabled"><a href="#">...</a></li>
-    <li><a href="@controllers.routes.Application.popularTickets(account, projectId, totalPages)">@totalPages</a></li>
-    <li><a href="#">&#62;</a></li>
-    <li><a href="#">&#62;&#62;</a></li>
+    } else {
+    <li>
+        <a href="@controllers.routes.Application.popularTickets(account, projectId, String.valueOf(currentPage-1))">&#60;</a>
+    </li>
+    }
+    
+    @for(i<-1 to totalPages){
+    @if(currentPage == i) {
+    <li class="active">
+    } else {
+    <li>
+    }
+        <a href="@controllers.routes.Application.popularTickets(account, projectId, String.valueOf(i))">@i</a>
+    </li>
+    }
+    
+    @if(currentPage == totalPages) {
+    <li class="disabled">
+        <a href="#">&#62;</a>
+    </li>
+    } else {
+    <li>
+        <a href="@controllers.routes.Application.popularTickets(account, projectId, String.valueOf(currentPage+1))">&#62;</a>
+    </li>
+    }
+        
+    <li><a href="@controllers.routes.Application.popularTickets(account, projectId, String.valueOf(totalPages))">&#62;&#62;</a></li>
   </ul>
 </div>

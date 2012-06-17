@@ -18,7 +18,6 @@ import org.w3c.dom.Node;
 import play.Logger;
 import play.libs.F;
 import play.libs.WS;
-import play.libs.WS.WSRequestHolder;
 import play.libs.XPath;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -67,20 +66,6 @@ public class Application extends Controller {
         }
 
         return tickets;
-
-    }
-
-    protected F.Function<WSRequestHolder, List<Ticket>> getTickets(final WSRequestHolder request) {
-
-        return new F.Function<WSRequestHolder, List<Ticket>>() {
-
-            @Override
-            public List<Ticket> apply(final WSRequestHolder request) throws Throwable {
-
-                return null;
-            }
-
-        };
 
     }
 

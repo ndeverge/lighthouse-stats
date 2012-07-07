@@ -30,35 +30,7 @@ public class Application extends Controller {
 
     }
 
-    public static Result openTickets(final String account, final String projectId) {
-
-        try {
-            return async(LightHouseApi.openTickets(account, projectId, 1).get()
-                    .map(new F.Function<WS.Response, Result>() {
-                        @Override
-                        public Result apply(final WS.Response response) {
-
-                            if (response == null) {
-                                Logger.error("Null response");
-                                return internalServerError("Null response");
-                            }
-
-                            Document doc = response.asXml();
-
-                            List<Ticket> tickets = getOpenTickets(doc);
-
-                            return ok(tickets.toString());
-                        }
-                    }));
-        } catch (IOException e) {
-            Logger.error("Error accessing to WebServices", e);
-        }
-
-        return internalServerError();
-
-    }
-
-    protected static List<Ticket> getOpenTickets(final Document doc) {
+    protected static List<Ticket> getOpenendTicketsFromCurrentPage(final Document doc) {
 
         List<Ticket> tickets = new ArrayList<Ticket>();
         for (Node node : XPath.selectNodes("//ticket", doc)) {
@@ -70,33 +42,21 @@ public class Application extends Controller {
 
     }
 
-    private static List<Ticket> getTickets(final String account, final String projectId, final int page,
+    private static List<Ticket> getAllOpenedTickets(final String account, final String projectId, final int page,
             final List<Ticket> retrievedTickets) throws IOException {
 
         WS.Response response = LightHouseApi.openTickets(account, projectId, page).get().get();
 
         Document doc = response.asXml();
 
-        retrievedTickets.addAll(getOpenTickets(doc));
+        retrievedTickets.addAll(getOpenendTicketsFromCurrentPage(doc));
 
         String totalPages = XPath.selectText("//total_pages", doc);
         String currentPage = XPath.selectText("//current_page", doc);
 
         if (!currentPage.equals(totalPages)) {
-            return getTickets(account, projectId, page + 1, retrievedTickets);
+            return getAllOpenedTickets(account, projectId, page + 1, retrievedTickets);
         } else {
-            Collections.sort(retrievedTickets, new Comparator<Ticket>() {
-
-                @Override
-                public int compare(final Ticket t1, final Ticket t2) {
-                    if (t1.numberOfWatchers >= t2.numberOfWatchers) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
-            });
-
             return retrievedTickets;
 
         }
@@ -107,7 +67,19 @@ public class Application extends Controller {
 
         try {
             // TODO : async
-            List<Ticket> tickets = getTickets(account, projectId, 1, new ArrayList<Ticket>());
+            List<Ticket> tickets = getAllOpenedTickets(account, projectId, 1, new ArrayList<Ticket>());
+
+            Collections.sort(tickets, new Comparator<Ticket>() {
+
+                @Override
+                public int compare(final Ticket t1, final Ticket t2) {
+                    if (t1.numberOfWatchers >= t2.numberOfWatchers) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                }
+            });
 
             return ok(views.html.tickets.render(tickets, account, projectId));
         } catch (IOException e) {

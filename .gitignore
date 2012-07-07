@@ -10,5 +10,6 @@ dist
 .classpath
 .project
 .settings
+.target
 
 lighthouse_api_token

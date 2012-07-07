@@ -25,14 +25,15 @@ import play.mvc.Result;
 public class Application extends Controller {
 
     public static Result index() {
-        return popularTickets("play", "82401", "1");
+
+        return redirect(routes.Application.popularTickets("play", "82401"));
 
     }
 
-    public static Result openTickets(final String account, final String projectId, final String page) {
+    public static Result openTickets(final String account, final String projectId) {
 
         try {
-            return async(LightHouseApi.openTickets(account, projectId, page).get()
+            return async(LightHouseApi.openTickets(account, projectId, 1).get()
                     .map(new F.Function<WS.Response, Result>() {
                         @Override
                         public Result apply(final WS.Response response) {
@@ -69,47 +70,46 @@ public class Application extends Controller {
 
     }
 
-    public static Result popularTickets(final String account, final String projectId, final String page) {
+    private static List<Ticket> getTickets(final String account, final String projectId, final int page,
+            final List<Ticket> retrievedTickets) throws IOException {
+
+        WS.Response response = LightHouseApi.openTickets(account, projectId, page).get().get();
+
+        Document doc = response.asXml();
+
+        retrievedTickets.addAll(getOpenTickets(doc));
+
+        String totalPages = XPath.selectText("//total_pages", doc);
+        String currentPage = XPath.selectText("//current_page", doc);
+
+        if (!currentPage.equals(totalPages)) {
+            return getTickets(account, projectId, page + 1, retrievedTickets);
+        } else {
+            Collections.sort(retrievedTickets, new Comparator<Ticket>() {
+
+                @Override
+                public int compare(final Ticket t1, final Ticket t2) {
+                    if (t1.numberOfWatchers >= t2.numberOfWatchers) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                }
+            });
+
+            return retrievedTickets;
+
+        }
+
+    }
+
+    public static Result popularTickets(final String account, final String projectId) {
 
         try {
-            return async(LightHouseApi.openTickets(account, projectId, page).get()
-                    .map(new F.Function<WS.Response, Result>() {
-                        @Override
-                        public Result apply(final WS.Response response) {
+            // TODO : async
+            List<Ticket> tickets = getTickets(account, projectId, 1, new ArrayList<Ticket>());
 
-                            if (response == null) {
-                                Logger.error("Null response");
-                                return internalServerError("Null response");
-                            }
-
-                            Document doc = response.asXml();
-
-                            List<Ticket> tickets = getOpenTickets(doc);
-
-                            String totalPages = XPath.selectText("//total_pages", doc);
-                            String currentPage = XPath.selectText("//current_page", doc);
-                            Logger.debug("Current page = " + currentPage);
-
-                            if (currentPage != totalPages) {
-                                // do something recursive
-                            }
-
-                            Collections.sort(tickets, new Comparator<Ticket>() {
-
-                                @Override
-                                public int compare(final Ticket t1, final Ticket t2) {
-                                    if (t1.numberOfWatchers >= t2.numberOfWatchers) {
-                                        return -1;
-                                    } else {
-                                        return 1;
-                                    }
-                                }
-                            });
-
-                            return ok(views.html.tickets.render(tickets, account, projectId,
-                                    Integer.valueOf(currentPage), Integer.valueOf(totalPages)));
-                        }
-                    }));
+            return ok(views.html.tickets.render(tickets, account, projectId));
         } catch (IOException e) {
             Logger.error("", e);
         }

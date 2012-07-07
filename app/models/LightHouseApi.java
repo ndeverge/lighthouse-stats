@@ -20,11 +20,14 @@ public class LightHouseApi {
 
     private static String playHouseAPIToken;
 
-    public static WSRequestHolder openTickets(final String account, final String projectId, final String page)
+    public static int RESULTS_PER_PAGE = 100;
+
+    public static WSRequestHolder openTickets(final String account, final String projectId, final int page)
             throws IOException {
         String url = String.format("http://%s.lighthouseapp.com/projects/%s/tickets.xml", account, projectId);
-        return buildRequest(url).setQueryParameter("q", "state:open").setQueryParameter("limit", "100")
-                .setQueryParameter("page", page);
+        return buildRequest(url).setQueryParameter("q", "state:open")
+                .setQueryParameter("limit", String.valueOf(RESULTS_PER_PAGE))
+                .setQueryParameter("page", String.valueOf(page));
     }
 
     public static WSRequestHolder allProjects(final String account) throws IOException {

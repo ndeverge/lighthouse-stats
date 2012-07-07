@@ -12,9 +12,9 @@
 
     @for(ticket <- tickets) {
     <div class="row">
+        <div class="span2"><span class="label label-info">@ticket.numberOfWatchers watchers</span></div>
         <div class="span8"><a href="@ticket.url" target="_blank">@ticket.title</a></div>
-        
-        <div class="span4"><span class="label label-info">@ticket.numberOfWatchers watchers</span></div>
+        <div class="span2"><a href="@ticket.url" target="_blank"><span class="label">@ticket.numberOfComments comments</span></a></div>
     </div>
     <p></p>
     }

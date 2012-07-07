@@ -17,6 +17,7 @@ public class Ticket extends Resource {
     public String title;
     public String state;
     public Date creationDate;
+    public String numberOfComments;
     public int numberOfWatchers;
 
     public Ticket(final Node node) {
@@ -26,6 +27,7 @@ public class Ticket extends Resource {
         title = getNodeContent(node, "title");
         state = getNodeContent(node, "state");
         creationDate = parseCreationDate(getNodeContent(node, "created-at"));
+        numberOfComments = getNodeContent(node, "version");
 
         numberOfWatchers = computeNumberOfWatchers(getNodeContent(node, "watchers-ids"));
     }

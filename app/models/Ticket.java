@@ -1,8 +1,13 @@
 package models;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 import org.w3c.dom.Node;
+
+import play.Logger;
 
 public class Ticket extends Resource {
 
@@ -11,6 +16,7 @@ public class Ticket extends Resource {
     public final String url;
     public String title;
     public String state;
+    public Date creationDate;
     public int numberOfWatchers;
 
     public Ticket(final Node node) {
@@ -19,8 +25,19 @@ public class Ticket extends Resource {
         url = getNodeContent(node, "url");
         title = getNodeContent(node, "title");
         state = getNodeContent(node, "state");
+        creationDate = parseCreationDate(getNodeContent(node, "created-at"));
 
         numberOfWatchers = computeNumberOfWatchers(getNodeContent(node, "watchers-ids"));
+    }
+
+    protected Date parseCreationDate(final String dateAsString) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        try {
+            return df.parse(dateAsString);
+        } catch (ParseException e) {
+            Logger.debug("Error parsing date", e);
+        }
+        return null;
     }
 
     protected static int computeNumberOfWatchers(final String watcherIds) {

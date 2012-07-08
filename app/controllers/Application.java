@@ -75,8 +75,6 @@ public class Application extends Controller {
                 public Project call() throws Exception {
                     WS.Response response = LightHouseApi.project(account, projectId).get().get();
 
-                    Logger.debug(response.getBody());
-
                     return new Project(XPath.selectNode("//project", response.asXml()));
 
                 }

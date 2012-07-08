@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import models.LightHouseApi;
 import models.Project;
@@ -16,7 +17,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import play.Logger;
+import play.cache.Cache;
 import play.libs.F;
+import play.libs.Json;
 import play.libs.WS;
 import play.libs.XPath;
 import play.mvc.Controller;
@@ -42,7 +45,7 @@ public class Application extends Controller {
 
     }
 
-    private static List<Ticket> getAllOpenedTickets(final String account, final String projectId, final int page,
+    protected static List<Ticket> getAllOpenedTickets(final String account, final String projectId, final int page,
             final List<Ticket> retrievedTickets) throws IOException {
 
         WS.Response response = LightHouseApi.openTickets(account, projectId, page).get().get();
@@ -60,6 +63,28 @@ public class Application extends Controller {
             return retrievedTickets;
 
         }
+
+    }
+
+    protected static Project getProject(final String account, final String projectId) throws IOException {
+
+        try {
+            return Cache.getOrElse(projectId, new Callable<Project>() {
+
+                @Override
+                public Project call() throws Exception {
+                    WS.Response response = LightHouseApi.project(account, projectId).get().get();
+
+                    Logger.debug(response.getBody());
+
+                    return new Project(XPath.selectNode("//project", response.asXml()));
+
+                }
+            }, 3600);
+        } catch (Exception e) {
+            Logger.error("Unable to retrieve project infos", e);
+        }
+        return null;
 
     }
 
@@ -81,7 +106,7 @@ public class Application extends Controller {
                 }
             });
 
-            return ok(views.html.tickets.render(tickets, account, projectId));
+            return ok(views.html.tickets.render(tickets, account, getProject(account, projectId)));
         } catch (IOException e) {
             Logger.error("", e);
         }
@@ -110,7 +135,7 @@ public class Application extends Controller {
 
                     }
 
-                    return ok(projects.toString());
+                    return ok(Json.toJson(projects));
                 }
             }));
         } catch (IOException e) {

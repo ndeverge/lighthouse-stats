@@ -1,4 +1,4 @@
-@(tickets: List[Ticket], account: String, projectId: String)
+@(tickets: List[Ticket], account: String, project: Project)
 
 @css = {
 
@@ -8,7 +8,12 @@
 
 }
 
-@main("Welcome to LightHouse Stats !")(javascript)(css) {
+@main("Welcome to LightHouse Stats !", project)(javascript)(css) {
+
+    <div class="row">
+        <div class="span12"><span class="label label-inverse">@tickets.size() opened tickets</span></div>
+    </div>
+    <p></p>
 
     @for(ticket <- tickets) {
     <div class="row">

@@ -35,6 +35,11 @@ public class LightHouseApi {
         return buildRequest(url);
     }
 
+    public static WSRequestHolder project(final String account, final String projectId) throws IOException {
+        String url = String.format("http://%s.lighthouseapp.com/projects/%s.xml", account, projectId);
+        return buildRequest(url);
+    }
+
     protected static WSRequestHolder buildRequest(final String url) throws IOException {
 
         Logger.debug("Request: " + url);

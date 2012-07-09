@@ -45,31 +45,29 @@ public class Application extends Controller {
 
     }
 
-    protected static List<Ticket> getAllOpenedTickets(final String account, final String projectId, final int page,
-            final List<Ticket> retrievedTickets) throws IOException {
+    protected static List<Ticket> getAllOpenedTickets(final String account, final String projectId, final int page) throws IOException {
 
         WS.Response response = LightHouseApi.openTickets(account, projectId, page).get().get();
 
         Document doc = response.asXml();
 
-        retrievedTickets.addAll(getOpenendTicketsFromCurrentPage(doc));
+        List<Ticket> retrievedTickets = getOpenendTicketsFromCurrentPage(doc);
 
         String totalPages = XPath.selectText("//total_pages", doc);
         String currentPage = XPath.selectText("//current_page", doc);
 
         if (!currentPage.equals(totalPages)) {
-            return getAllOpenedTickets(account, projectId, page + 1, retrievedTickets);
-        } else {
-            return retrievedTickets;
-
+            retrievedTickets.addAll(getAllOpenedTickets(account, projectId, page + 1));
         }
+        return retrievedTickets;
+        
 
     }
 
     protected static Project getProject(final String account, final String projectId) throws IOException {
 
         try {
-            return Cache.getOrElse(projectId, new Callable<Project>() {
+            return Cache.getOrElse(account + ":" + projectId, new Callable<Project>() {
 
                 @Override
                 public Project call() throws Exception {
@@ -78,7 +76,7 @@ public class Application extends Controller {
                     return new Project(XPath.selectNode("//project", response.asXml()));
 
                 }
-            }, 3600);
+            }, 3600*24);
         } catch (Exception e) {
             Logger.error("Unable to retrieve project infos", e);
         }
@@ -90,7 +88,7 @@ public class Application extends Controller {
 
         try {
             // TODO : async
-            List<Ticket> tickets = getAllOpenedTickets(account, projectId, 1, new ArrayList<Ticket>());
+            List<Ticket> tickets = getAllOpenedTickets(account, projectId, 1);
 
             Collections.sort(tickets, new Comparator<Ticket>() {
 

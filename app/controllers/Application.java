@@ -49,6 +49,10 @@ public class Application extends Controller {
 
         WS.Response response = LightHouseApi.openTickets(account, projectId, page).get().get();
 
+        if (response.getBody().trim().isEmpty()) {
+            return null;
+        }
+
         Document doc = response.asXml();
 
         List<Ticket> retrievedTickets = getOpenendTicketsFromCurrentPage(doc);
@@ -89,6 +93,10 @@ public class Application extends Controller {
         try {
             // TODO : async
             List<Ticket> tickets = getAllOpenedTickets(account, projectId, 1);
+
+            if (tickets == null) {
+                return badRequest(String.format("The project '%s' does not exist for the accound '%s'", projectId, account));
+            }
 
             Collections.sort(tickets, new Comparator<Ticket>() {
 

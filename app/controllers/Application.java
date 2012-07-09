@@ -77,6 +77,10 @@ public class Application extends Controller {
                 public Project call() throws Exception {
                     WS.Response response = LightHouseApi.project(account, projectId).get().get();
 
+                    if (response.getBody().trim().isEmpty()) {
+                        return null;
+                    }
+
                     return new Project(XPath.selectNode("//project", response.asXml()));
 
                 }
@@ -98,6 +102,11 @@ public class Application extends Controller {
                 return badRequest(String.format("The project '%s' does not exist for the accound '%s'", projectId, account));
             }
 
+            Project project = getProject(account, projectId);
+            if (project == null) {
+              return badRequest(String.format("The project '%s' does not exist for the accound '%s'", projectId, account));
+            }
+
             Collections.sort(tickets, new Comparator<Ticket>() {
 
                 @Override
@@ -110,7 +119,7 @@ public class Application extends Controller {
                 }
             });
 
-            return ok(views.html.tickets.render(tickets, account, getProject(account, projectId)));
+            return ok(views.html.tickets.render(tickets, account, project));
         } catch (IOException e) {
             Logger.error("", e);
         }

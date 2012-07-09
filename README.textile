@@ -2,6 +2,8 @@ h1. Lighthouse Stats
 
 h2. How it works
 
+The application is written using "Play Framework version 2.0.2":http://www.playframework.org/.
+
 It uses the REST LightHouse API: http://help.lighthouseapp.com/kb/api
 
 h2. Setup

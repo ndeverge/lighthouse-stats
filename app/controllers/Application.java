@@ -27,134 +27,148 @@ import play.mvc.Result;
 
 public class Application extends Controller {
 
-    public static Result index() {
+	public static Result index() {
 
-        return redirect(routes.Application.popularTickets("play", "82401"));
+		return ok(views.html.index.render());
 
-    }
+	}
 
-    protected static List<Ticket> getOpenendTicketsFromCurrentPage(final Document doc) {
+	protected static List<Ticket> getOpenendTicketsFromCurrentPage(
+			final Document doc) {
 
-        List<Ticket> tickets = new ArrayList<Ticket>();
-        for (Node node : XPath.selectNodes("//ticket", doc)) {
-            Resource resource = Resource.instance(node);
-            tickets.add((Ticket) resource);
-        }
+		List<Ticket> tickets = new ArrayList<Ticket>();
+		for (Node node : XPath.selectNodes("//ticket", doc)) {
+			Resource resource = Resource.instance(node);
+			tickets.add((Ticket) resource);
+		}
 
-        return tickets;
+		return tickets;
 
-    }
+	}
 
-    protected static List<Ticket> getAllOpenedTickets(final String account, final String projectId, final int page) throws IOException {
+	protected static List<Ticket> getAllOpenedTickets(final String account,
+			final String projectId, final int page) throws IOException {
 
-        WS.Response response = LightHouseApi.openTickets(account, projectId, page).get().get();
+		WS.Response response = LightHouseApi
+				.openTickets(account, projectId, page).get().get();
 
-        if (response.getBody().trim().isEmpty()) {
-            return null;
-        }
+		if (response.getBody().trim().isEmpty()) {
+			return null;
+		}
 
-        Document doc = response.asXml();
+		Document doc = response.asXml();
 
-        List<Ticket> retrievedTickets = getOpenendTicketsFromCurrentPage(doc);
+		List<Ticket> retrievedTickets = getOpenendTicketsFromCurrentPage(doc);
 
-        String totalPages = XPath.selectText("//total_pages", doc);
-        String currentPage = XPath.selectText("//current_page", doc);
+		String totalPages = XPath.selectText("//total_pages", doc);
+		String currentPage = XPath.selectText("//current_page", doc);
 
-        if (!currentPage.equals(totalPages)) {
-            retrievedTickets.addAll(getAllOpenedTickets(account, projectId, page + 1));
-        }
-        return retrievedTickets;
-        
+		if (!currentPage.equals(totalPages)) {
+			retrievedTickets.addAll(getAllOpenedTickets(account, projectId,
+					page + 1));
+		}
+		return retrievedTickets;
 
-    }
+	}
 
-    protected static Project getProject(final String account, final String projectId) throws IOException {
+	protected static Project getProject(final String account,
+			final String projectId) throws IOException {
 
-        try {
-            return Cache.getOrElse(account + ":" + projectId, new Callable<Project>() {
+		try {
+			return Cache.getOrElse(account + ":" + projectId,
+					new Callable<Project>() {
 
-                @Override
-                public Project call() throws Exception {
-                    WS.Response response = LightHouseApi.project(account, projectId).get().get();
+						@Override
+						public Project call() throws Exception {
+							WS.Response response = LightHouseApi
+									.project(account, projectId).get().get();
 
-                    if (response.getBody().trim().isEmpty()) {
-                        return null;
-                    }
+							if (response.getBody().trim().isEmpty()) {
+								return null;
+							}
 
-                    return new Project(XPath.selectNode("//project", response.asXml()));
+							return new Project(XPath.selectNode("//project",
+									response.asXml()));
 
-                }
-            }, 3600*24);
-        } catch (Exception e) {
-            Logger.error("Unable to retrieve project infos", e);
-        }
-        return null;
+						}
+					}, 3600 * 24);
+		} catch (Exception e) {
+			Logger.error("Unable to retrieve project infos", e);
+		}
+		return null;
 
-    }
+	}
 
-    public static Result popularTickets(final String account, final String projectId) {
+	public static Result popularTickets(final String account,
+			final String projectId) {
 
-        try {
-            // TODO : async
-            List<Ticket> tickets = getAllOpenedTickets(account, projectId, 1);
+		try {
+			// TODO : async
+			List<Ticket> tickets = getAllOpenedTickets(account, projectId, 1);
 
-            if (tickets == null) {
-                return badRequest(String.format("The project '%s' does not exist for the accound '%s'", projectId, account));
-            }
+			if (tickets == null) {
+				return badRequest(String.format(
+						"The project '%s' does not exist for the accound '%s'",
+						projectId, account));
+			}
 
-            Project project = getProject(account, projectId);
-            if (project == null) {
-              return badRequest(String.format("The project '%s' does not exist for the accound '%s'", projectId, account));
-            }
+			Project project = getProject(account, projectId);
+			if (project == null) {
+				return badRequest(String.format(
+						"The project '%s' does not exist for the accound '%s'",
+						projectId, account));
+			}
 
-            Collections.sort(tickets, new Comparator<Ticket>() {
+			Collections.sort(tickets, new Comparator<Ticket>() {
 
-                @Override
-                public int compare(final Ticket t1, final Ticket t2) {
-                    if (t1.numberOfWatchers >= t2.numberOfWatchers) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
-            });
+				@Override
+				public int compare(final Ticket t1, final Ticket t2) {
+					if (t1.numberOfWatchers >= t2.numberOfWatchers) {
+						return -1;
+					} else {
+						return 1;
+					}
+				}
+			});
 
-            return ok(views.html.tickets.render(tickets, account, project));
-        } catch (IOException e) {
-            Logger.error("", e);
-        }
+			return ok(views.html.tickets.render(tickets, account, project));
+		} catch (IOException e) {
+			Logger.error("", e);
+		}
 
-        return internalServerError();
-    }
+		return internalServerError();
+	}
 
-    public static Result allProjects(final String account) {
+	public static Result allProjects(final String account) {
 
-        try {
-            return async(LightHouseApi.allProjects(account).get().map(new F.Function<WS.Response, Result>() {
-                @Override
-                public Result apply(final WS.Response response) {
+		try {
+			return async(LightHouseApi.allProjects(account).get()
+					.map(new F.Function<WS.Response, Result>() {
+						@Override
+						public Result apply(final WS.Response response) {
 
-                    if (response == null) {
-                        Logger.error("Null response");
-                        return internalServerError("Null response");
-                    }
+							if (response == null) {
+								Logger.error("Null response");
+								return internalServerError("Null response");
+							}
 
-                    Document doc = response.asXml();
+							Document doc = response.asXml();
 
-                    Collection<Project> projects = new ArrayList<Project>();
-                    for (Node node : XPath.selectNodes("//project", doc)) {
-                        Resource resource = Resource.instance(node);
-                        projects.add((Project) resource);
+							Collection<Project> projects = new ArrayList<Project>();
+							for (Node node : XPath
+									.selectNodes("//project", doc)) {
+								Resource resource = Resource.instance(node);
+								projects.add((Project) resource);
 
-                    }
+							}
 
-                    return ok(Json.toJson(projects));
-                }
-            }));
-        } catch (IOException e) {
-            Logger.error("", e);
-        }
+							return ok(Json.toJson(projects));
+						}
+					}));
+		} catch (IOException e) {
+			Logger.error("", e);
+		}
 
-        return internalServerError();
-    }
+		return internalServerError();
+	}
 }

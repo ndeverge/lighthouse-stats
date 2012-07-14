@@ -1,0 +1,57 @@
+
+@css = {
+
+}
+
+@javascript = {
+}
+
+@main("Welcome to LightHouse Stats !", null)(javascript)(css) {
+
+      <div class="hero-unit">
+        <h1>Popular tickets on LightHouse!</h1>
+        <p>This web application uses the LightHouse REST API to show the popular tickets (ie with the most watchers).</p>
+      </div>
+      <section id="samples">
+	      <div class="row">
+	        <div class="span12">
+	        <div class="page-header">
+	        	<h1>Samples</h1>
+	        </div>
+	      	</div>
+	      </div>
+	      <div class="row">
+	        <div class="span4">
+	          <h2>Playframework 2.x</h2>
+	          <p><span class="label label-inverse">@controllers.routes.Application.popularTickets("play", "82401")</span></p>
+	          <p><a class="btn" href="@controllers.routes.Application.popularTickets("play", "82401")">View popular tickets</a></p>
+	        </div>
+	        <div class="span4">
+	          <h2>Playframework 1.x</h2>
+	          <p><span class="label label-inverse">@controllers.routes.Application.popularTickets("play", "57987")</span></p>
+	          <p><a class="btn" href="@controllers.routes.Application.popularTickets("play", "57987")">View popular tickets</a></p>
+	       </div>
+	        <div class="span4">
+	          <h2>CakePHP</h2>
+	          <p><span class="label label-inverse">@controllers.routes.Application.popularTickets("cakephp", "42648")</span></p>
+	          <p><a class="btn" href="@controllers.routes.Application.popularTickets("cakephp", "42648")">View popular tickets</a></p>
+	        </div>
+	      </div>
+	  </section>
+      <section id="howtouse">
+	      <div class="row">
+	        <div class="span12">
+	        <div class="page-header">
+	        	<h1>How to use</h1>
+	        </div>
+	        <p>You can use this tool to check the popular tickets of your favorite framework, if the bugtracking is provided by LightHouse.</p>
+	        <p>To do this, you just have to build the proper Url inspired by the Url of your LightHouse project.</p>
+	        <p>Here is an example of a LightHouse Url:</p>
+	        <blockquote>https://<span class="label label-success">play</span>.lighthouseapp.com/projects/<span class="label label-info">57987</span>-play-framework/overview</blockquote>
+			<p>The first part (in green) is called the "account name", and the second one (in blue) is the "project id".</p>
+			<p>To view the popular tickets, just use:</p>
+			<blockquote>/<span class="label label-success">play</span>/projects/<span class="label label-info">82401</span>/tickets/popular</blockquote>
+			</div>
+	      </div>
+      </section>
+}

@@ -1,9 +1,16 @@
 @(project: Project)
-<div class="navbar">
+<div class="navbar" id="#navbar">
 	<div class="navbar-inner">
 		<div class="container">
+		@if(project != null){
 			<a class="brand" href="@controllers.routes.Application.index()">LightHouse Stats: @project.name</a>
-
+		} else {
+			<a class="brand" href="@controllers.routes.Application.index()">LightHouse Stats</a>
+			<ul class="nav">
+				<li><a href="#samples">Samples</a></li>
+				<li><a href="#howtouse">How to use</a></li>
+			</ul>
+		}
 		</div>
 	</div>
 </div>

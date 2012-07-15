@@ -4,6 +4,8 @@
 
 # Home page
 GET     /                                                   controllers.Application.index()
+GET     /search                                             controllers.Application.search()
+
 
 GET     /:account/projects                                  controllers.Application.allProjects(account:String)
 

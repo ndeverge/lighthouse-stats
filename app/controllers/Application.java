@@ -18,19 +18,27 @@ import org.w3c.dom.Node;
 
 import play.Logger;
 import play.cache.Cache;
+import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.libs.WS;
 import play.libs.XPath;
 import play.mvc.Controller;
 import play.mvc.Result;
+import forms.SearchForm;
 
 public class Application extends Controller {
 
 	public static Result index() {
-
 		return ok(views.html.index.render());
+	}
 
+	public static Result search() {
+		Form<SearchForm> form = form(SearchForm.class).bindFromRequest();
+		String account = form.get().account;
+		String projectId = form.get().projectId;
+
+		return redirect(routes.Application.popularTickets(account, projectId));
 	}
 
 	protected static List<Ticket> getOpenendTicketsFromCurrentPage(

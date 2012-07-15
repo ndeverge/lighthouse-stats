@@ -9,7 +9,7 @@
 @main("Welcome to LightHouse Stats !", null)(javascript)(css) {
 
       <div class="hero-unit">
-        <h1>Popular tickets on LightHouse!</h1>
+        <h1>See popular tickets on LightHouse !</h1>
         <p>This web application uses the LightHouse REST API to show the popular tickets (ie with the most watchers).</p>
       </div>
       <section id="samples">
@@ -51,6 +51,12 @@
 			<p>The first part (in green) is called the "account name", and the second one (in blue) is the "project id".</p>
 			<p>To view the popular tickets, just use:</p>
 			<blockquote>/<span class="label label-success">play</span>/projects/<span class="label label-info">82401</span>/tickets/popular</blockquote>
+			<p>Or you can use the following form:</p>
+			<form class="well form-inline" method="GET" action="@controllers.routes.Application.search()">
+			  <input type="text" name="account" class="input-small" placeholder="Account name">
+			  <input type="text" name="projectId" class="input-small" placeholder="Project id">
+			  <button type="submit" class="btn">Show</button>
+			</form>
 			</div>
 	      </div>
       </section>

@@ -1,3 +1,4 @@
+@(searchForm: Form[forms.SearchForm])
 
 @css = {
 
@@ -53,8 +54,8 @@
 			<blockquote>/<span class="label label-success">play</span>/projects/<span class="label label-info">82401</span>/tickets/popular</blockquote>
 			<p>Or you can use the following form:</p>
 			<form class="well form-inline" method="GET" action="@controllers.routes.Application.search()">
-			  <input type="text" name="account" class="input-small" placeholder="Account name">
-			  <input type="text" name="projectId" class="input-small" placeholder="Project id">
+			  <input type="text" name="account" class="input-small" placeholder="Account name">@if(searchForm.error("account")!=null){<span class="label label-important">@Messages(searchForm.error("account").message)</span>}
+			  <input type="text" name="projectId" class="input-small" placeholder="Project id">@if(searchForm.error("projectId")!=null){<span class="label label-important">@Messages(searchForm.error("projectId").message)</span>}
 			  <button type="submit" class="btn">Show</button>
 			</form>
 			</div>

@@ -1,8 +1,12 @@
 package forms;
 
+import play.data.validation.Constraints.Required;
+
 public class SearchForm {
 
-	public String account;
-	public String projectId;
+    @Required
+    public String account;
+    @Required
+    public String projectId;
 
 }

@@ -26,6 +26,7 @@
     <div class="container">
 	   @content
 	</div>
+        @if(play.Play.isProd){
 	<script type="text/javascript">
 
 	  var _gaq = _gaq || [];
@@ -39,5 +40,6 @@
 	  })();
 	
 	</script>
+        }
 </body>
 </html>
